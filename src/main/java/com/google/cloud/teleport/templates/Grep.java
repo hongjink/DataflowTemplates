@@ -57,22 +57,26 @@ public class Grep {
     void setInputFilePattern(ValueProvider<String> value);
 
     @Description("JSON file with BigQuery Schema description")
+	  @Default.String("gs://jin-dfbucket/schema.json")
     ValueProvider<String> getJSONPath();
 
     void setJSONPath(ValueProvider<String> value);
 
     @Description("Output topic to write to")
+	  @Default.String("jin-dfproject:dftest1.trans")
     ValueProvider<String> getOutputTable();
 
     void setOutputTable(ValueProvider<String> value);
 
     @Description("GCS path to javascript fn for transforming output")
+	  @Default.String("gs://jin-dfbucket/transform.js")
     ValueProvider<String> getJavascriptTextTransformGcsPath();
 
     void setJavascriptTextTransformGcsPath(ValueProvider<String> jsTransformPath);
 
     @Validation.Required
     @Description("UDF Javascript Function Name")
+	   @Default.String("transform")
     ValueProvider<String> getJavascriptTextTransformFunctionName();
 
     void setJavascriptTextTransformFunctionName(
@@ -80,6 +84,7 @@ public class Grep {
 
     @Validation.Required
     @Description("Temporary directory for BigQuery loading process")
+	    @Default.String("gs://jin-dfbucket/bqtmp")
     ValueProvider<String> getBigQueryLoadingTemporaryDirectory();
 
     void setBigQueryLoadingTemporaryDirectory(ValueProvider<String> directory);
