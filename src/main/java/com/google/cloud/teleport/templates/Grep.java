@@ -47,9 +47,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Templated pipeline to read text from TextIO, apply a javascript UDF to it, and write it to GCS.
  */
-public class TextIOToBigQuery {
+public class Grep {
 
-  /** Options supported by {@link TextIOToBigQuery}. */
+  /** Options supported by {@link Grep}. */
   public interface Options extends DataflowPipelineOptions, JavascriptTextTransformerOptions {
     @Description("The GCS location of the text you'd like to process")
     ValueProvider<String> getInputFilePattern();
@@ -94,9 +94,22 @@ public class TextIOToBigQuery {
   public static void main(String[] args) {
     Options options = PipelineOptionsFactory.fromArgs(args).withValidation().as(Options.class);
     Pipeline pipeline = Pipeline.create(options);
+    
+    String input = "gs://jin-bucket/*.csv";
+		String outputPrefix = "gs://jin-bucket/tmp";
+		final String searchTerm = "Bellocht";
 
     pipeline
-        .apply("Read from source", TextIO.read().from(options.getInputFilePattern()))
+        .apply("Read from source", TextIO.read().from(input))
+      	.apply("Grep", ParDo.of(new DoFn<String, String>() {
+					@ProcessElement
+					public void processElement(ProcessContext c) throws Exception {
+						String line = c.element();
+						if (line.contains(searchTerm)) {
+							c.output(line);
+						}
+					}
+				}))
         .apply(
             TransformTextViaJavascript.newBuilder()
                 .setFileSystemPath(options.getJavascriptTextTransformGcsPath())
